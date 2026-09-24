@@ -5,8 +5,8 @@ const mineflayer = require('mineflayer');
 
 function createBot() {
     const bot = mineflayer.createBot({
-        host: 'ضع_IP_سيرفرك_هنا',      // IP سيرفر FalixNodes
-        port: 25565,                // البورت
+        host: 'voidsmp2103912381230.falixsrv.me',
+        port: 23499,                // البورت
         username: 'AFK_Bot_247'     // اسم البوت
     });
 
