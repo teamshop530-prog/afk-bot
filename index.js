@@ -7,35 +7,32 @@ function createBot() {
     const bot = mineflayer.createBot({
         host: 'voidsmp2103912381230.falixsrv.me',
         port: 25565,
-        username: 'AFK_Bot_247'
+        username: 'AFK_Bot_247',
+        version: '1.21.1' // تحديد إصدار السيرفر لتفادي الطرد
     });
 
     bot.on('spawn', () => {
-        console.log('تم دخول البوت للسيرفر بنجاح!');
+        console.log('تم دخول البوت للسيرفر واستقراره بنجاح!');
 
-        // تسجيل الدخول تلقائياً بعد ثانيتين
+        // انتظر 5 ثواني قبل إرسال أوامر التسجيل لمنع طرد Anti-Spam
         setTimeout(() => {
             bot.chat('/register 12345678 12345678'); 
             bot.chat('/login 12345678');
-        }, 2000);
+        }, 5000);
 
-        // حركات عشوائية لمنع الطرد (AFK Kicker)
+        // حركة خفيفة كل 10 ثواني لمنع الطرد بسلاسة
         setInterval(() => {
-            const moves = ['forward', 'back', 'left', 'right'];
-            const randomMove = moves[Math.floor(Math.random() * moves.length)];
-            
-            bot.setControlState(randomMove, true);
-            bot.setControlState('jump', Math.random() < 0.5);
-
-            setTimeout(() => {
-                bot.clearControlStates();
-            }, 1000);
-        }, 3000);
+            bot.setControlState('jump', true);
+            setTimeout(() => bot.setControlState('jump', false), 500);
+        }, 10000);
     });
 
+    // معرفة سبب الطرد بالتفصيل في الـ Logs
+    bot.on('kicked', reason => console.log('تم طرد البوت لسبب:', reason));
+
     bot.on('end', () => {
-        console.log('انقطع الاتصال، جاري إعادة المحاولة خلال 10 ثواني...');
-        setTimeout(createBot, 10000);
+        console.log('انقطع الاتصال، جاري إعادة الاتصال بعد 15 ثانية...');
+        setTimeout(createBot, 15000);
     });
 
     bot.on('error', err => console.log('حدث خطأ:', err));
