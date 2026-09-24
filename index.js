@@ -22,10 +22,16 @@ function createBot() {
 
         // حركة خفيفة كل 10 ثواني لمنع الطرد بسلاسة
         setInterval(() => {
-            bot.setControlState('jump', true);
-            setTimeout(() => bot.setControlState('jump', false), 500);
-        }, 10000);
-    });
+            const moves = ['forward', 'back', 'left', 'right'];
+            const randomMove = moves[Math.floor(Math.random() * moves.length)];
+            
+            bot.setControlState(randomMove, true);
+            if (Math.random() < 0.5) bot.setControlState('jump', true);
+
+            setTimeout(() => {
+                bot.clearControlStates();
+            }, 1000);
+        }, 5000);
 
     // معرفة سبب الطرد بالتفصيل في الـ Logs
     bot.on('kicked', reason => console.log('تم طرد البوت لسبب:', reason));
