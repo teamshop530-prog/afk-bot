@@ -1,5 +1,4 @@
 const http = require('http');
-// سيرفر بسيط لإبقاء الخدمة أونلاين
 http.createServer((req, res) => res.end('AFK Bot is Online!')).listen(process.env.PORT || 8080);
 
 const mineflayer = require('mineflayer');
@@ -24,21 +23,35 @@ function createBot() {
             bot.chat('/login 12345678');
         }, 5000);
 
-        // حركة قفز خفيفة كل 10 ثوانٍ
+        // حركة تجول مشي وقفز عشوائي كل 6 ثوانٍ
         const moveInterval = setInterval(() => {
             if (!bot || !bot.entity) return;
-            bot.setControlState('jump', true);
+
+            // اختيار اتجاه عشوائي (أمام، خلف، يسار، يمين)
+            const controls = ['forward', 'back', 'left', 'right'];
+            const randomControl = controls[Math.floor(Math.random() * controls.length)];
+
+            bot.setControlState(randomControl, true);
+            
+            // قفز بنسبة 50% مع الحركة
+            if (Math.random() > 0.5) {
+                bot.setControlState('jump', true);
+            }
+
+            // إيقاف الحركة بعد ثانية واحدة
             setTimeout(() => {
-                if (bot && bot.entity) bot.setControlState('jump', false);
-            }, 500);
-        }, 10000);
+                if (bot && bot.entity) {
+                    bot.clearControlStates();
+                }
+            }, 1000);
+
+        }, 6000);
 
         bot.on('end', () => clearInterval(moveInterval));
     });
 
-    // طباعة سبب الطرد بدون عمل Crash
     bot.on('kicked', reason => {
-        console.log('تم طرد البوت من السيرفر لسبب:', JSON.stringify(reason));
+        console.log('تم طرد البوت لسبب:', JSON.stringify(reason));
     });
 
     bot.on('error', err => {
@@ -46,12 +59,11 @@ function createBot() {
     });
 
     bot.on('end', () => {
-        console.log('انقطع الاتصال بالسيرفر. إعادة المحاولة خلال 20 ثانية...');
+        console.log('انقطع الاتصال. إعادة المحاولة خلال 20 ثانية...');
         setTimeout(createBot, 20000);
     });
 }
 
-// معالجة الأخطاء العامة لمنع انهيار السكريبت
 process.on('uncaughtException', err => {
     console.log('خطأ غير متوقع تم احتواؤه:', err.message);
 });
