@@ -7,7 +7,7 @@ function createBot() {
     console.log('جاري محاولة الاتصال بالسيرفر...');
     
     const bot = mineflayer.createBot({
-        host: 'voidsmp2103912381230.falixsrv.me',
+        host: 'pixelcraftverse23166456456.mcsh.io',
         port: 25565,
         username: 'AFK_Bot_247',
         version: '1.21.1',
