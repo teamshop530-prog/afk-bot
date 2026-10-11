@@ -18,7 +18,7 @@ function wakeUpServer() {
     mc.ping({
         host: host,
         port: port,
-        version: '1.21.1'
+        version: '1.21.11'
     }, (err, response) => {
         if (err) {
             console.log('السيرفر مغلق حالياً، جاري إعادة المحاولة في غضون 10 ثوانٍ...');
