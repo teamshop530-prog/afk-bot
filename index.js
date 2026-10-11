@@ -2,7 +2,6 @@ const http = require('http');
 const mineflayer = require('mineflayer');
 const mc = require('minecraft-protocol');
 
-// سيرفر ويب للحفاظ على الاستضافة شغال
 http.createServer((req, res) => res.end('AFK Bot is Online 24/7!')).listen(process.env.PORT || 8080);
 
 const host = 'pixelcraftverse23166456456.mcsh.io';
@@ -11,30 +10,23 @@ const port = 25565;
 let bot = null;
 let moveInterval = null;
 
-// دالة لفحص وإيقاظ السيرفر (مثل زر التحديث في قائمة السيرفرات)
 function wakeUpServer() {
     console.log('جاري إرسال Ping لإيقاظ السيرفر...');
     
-    mc.ping({
-        host: host,
-        port: port,
-        version: '1.21.11'
-    }, (err, response) => {
+    mc.ping({ host: host, port: port, version: '1.21.1' }, (err, response) => {
         if (err) {
-            console.log('السيرفر مغلق حالياً، جاري إعادة المحاولة في غضون 10 ثوانٍ...');
+            console.log('السيرفر مغلق حالياً، إعادة المحاولة خلال 10 ثوانٍ...');
             setTimeout(wakeUpServer, 10000);
         } else {
-            console.log('السيرفر استيقظ! عدد اللاعبين:', response.players.online);
-            // السيرفر فتح، نبدأ ندخل البوت
-            startBot();
+            console.log('السيرفر استيقظ! جاري دخول البوت...');
+            setTimeout(startBot, 3000); // مهلة صغيرة لتفريغ الجلسة المعلقة
         }
     });
 }
 
 function startBot() {
-    console.log('جاري دخول البوت إلى السيرفر...');
-
     if (bot) {
+        try { bot.quit(); } catch (e) {}
         bot.removeAllListeners();
         bot = null;
     }
@@ -87,22 +79,22 @@ function startBot() {
         }, 3000);
     });
 
-    bot.on('kicked', (reason) => console.log('تم الطرد:', JSON.stringify(reason)));
-    
-    bot.on('error', (err) => {
-        console.log('خطأ في اتصال البوت:', err.message);
+    bot.on('kicked', (reason) => {
+        console.log('تم طرد البوت:', JSON.stringify(reason));
     });
 
-    // لو انقطع الاتصال، نرجع لخطوة الـ Ping عشان لو الاستضافة قفلت تفتح تاني
+    bot.on('error', (err) => {
+        console.log('خطأ اتصال:', err.message);
+    });
+
     bot.on('end', () => {
-        console.log('انقطع الاتصال بالسيرفر. العودة لفحص الحالة وإيقاظه...');
+        console.log('انقطع الاتصال. الانتظار لتفريغ الجلسة وإعادة المحاولة...');
         if (moveInterval) clearInterval(moveInterval);
-        setTimeout(wakeUpServer, 10000);
+        setTimeout(wakeUpServer, 15000); // زيادة وقت الانتظار قليلاً لضمان خروج الجلسة القديمة من السيرفر
     });
 }
 
-process.on('uncaughtException', (err) => console.log('خطأ غير متوقع:', err.message));
-process.on('unhandledRejection', (err) => console.log('رفض غير معالج:', err));
+process.on('uncaughtException', (err) => console.log('خطأ:', err.message));
+process.on('unhandledRejection', (err) => console.log('رفض:', err));
 
-// بدء العملية بفحص وإيقاظ السيرفر
 wakeUpServer();
