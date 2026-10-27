@@ -2,7 +2,7 @@ const http = require('http');
 const mineflayer = require('mineflayer');
 const mc = require('minecraft-protocol');
 
-const host = 'pixelcraftverse23166456456.mcsh.io';
+const host = 'voidsmpdark.play.hosting';
 const port = 25565;
 
 let bot = null;
