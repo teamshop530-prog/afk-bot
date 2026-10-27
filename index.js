@@ -3,7 +3,7 @@ const mineflayer = require('mineflayer');
 const mc = require('minecraft-protocol');
 
 const host = 'voidsmpdark.play.hosting';
-const port = 25565;
+const port = 58069;
 
 let bot = null;
 let moveInterval = null;
