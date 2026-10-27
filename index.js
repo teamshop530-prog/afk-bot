@@ -103,7 +103,7 @@ function startBot() {
         host: host,
         port: port,
         username: 'AFK_Bot_247',
-        version: '1.21.1',
+        version: '1.21.11',
         hideErrors: true
     });
 
