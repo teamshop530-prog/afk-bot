@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "mineflayer": "^4.20.0",
-    "minecraft-protocol": "^1.53.0"
+    "mineflayer": "^4.22.0",
+    "minecraft-protocol": "^1.57.0"
   },
   "scripts": {
     "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
