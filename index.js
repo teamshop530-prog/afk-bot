@@ -1,10 +1,10 @@
 const http = require('http');
+const dns = require('dns');
 const mineflayer = require('mineflayer');
 const mc = require('minecraft-protocol');
 
-// تم تعديل البورت ليتوافق مع بورت الجافا القياسي (تأكد منه إذا كان مختلفاً عن البورت الافتراضي)
 const host = 'voidsmpdark.play.hosting';
-const port = 25767; 
+const targetPort = 25767; // بورت الجافا القياسي للاستضافة
 
 let bot = null;
 let moveInterval = null;
@@ -20,7 +20,7 @@ const server = http.createServer((req, res) => {
     } else if (req.method === 'POST' && req.url === '/api/start') {
         isBotActive = true;
         console.log('تم طلب تشغيل البوت عبر لوحة التحكم...');
-        if (!bot) wakeUpServer();
+        if (!bot) resolveAndWakeUp();
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true, status: 'started' }));
     } else {
@@ -76,23 +76,36 @@ const server = http.createServer((req, res) => {
 
 server.listen(process.env.PORT || 8080);
 
-function wakeUpServer() {
+function resolveAndWakeUp() {
+    if (!isBotActive) return;
+    console.log('جاري فحص العنوان وتحويل الـ DNS...');
+
+    dns.lookup(host, (err, resolvedIp) => {
+        if (err) {
+            console.log('فشل العثور على عنوان السيرفر، إعادة المحاولة...');
+            setTimeout(resolveAndWakeUp, 10000);
+            return;
+        }
+        wakeUpServer(resolvedIp);
+    });
+}
+
+function wakeUpServer(resolvedIp) {
     if (!isBotActive) return;
     console.log('جاري إرسال Ping لإيقاظ السيرفر...');
     
-    // إزالة تحديد الإصدار يدوياً لتجنب أخطاء البروتوكول
-    mc.ping({ host: host, port: port }, (err) => {
+    mc.ping({ host: resolvedIp, port: targetPort }, (err) => {
         if (!isBotActive) return;
         if (err) {
-            setTimeout(wakeUpServer, 10000);
+            setTimeout(resolveAndWakeUp, 10000);
         } else {
             console.log('السيرفر استيقظ! جاري دخول البوت...');
-            setTimeout(startBot, 3000);
+            setTimeout(() => startBot(resolvedIp), 3000);
         }
     });
 }
 
-function startBot() {
+function startBot(resolvedIp) {
     if (!isBotActive) return;
     if (bot) {
         try { bot.quit(); } catch (e) {}
@@ -102,10 +115,9 @@ function startBot() {
     if (moveInterval) clearInterval(moveInterval);
 
     bot = mineflayer.createBot({
-        host: host,
-        port: port,
+        host: resolvedIp,
+        port: targetPort,
         username: 'AFK_Bot_247',
-        // إزالة حقل الـ version لكي تتوافق المكتبة تلقائياً مع إصدار السيرفر
         hideErrors: true
     });
 
@@ -150,7 +162,7 @@ function startBot() {
     bot.on('end', () => {
         if (moveInterval) clearInterval(moveInterval);
         if (isBotActive) {
-            setTimeout(wakeUpServer, 15000);
+            setTimeout(resolveAndWakeUp, 15000);
         }
     });
 }
@@ -165,4 +177,4 @@ function stopBot() {
     console.log('تم إيقاف البوت تماماً.');
 }
 
-wakeUpServer();
+resolveAndWakeUp();
