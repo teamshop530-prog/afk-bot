@@ -2,12 +2,13 @@ const http = require('http');
 const mineflayer = require('mineflayer');
 const mc = require('minecraft-protocol');
 
+// تم تعديل البورت ليتوافق مع بورت الجافا القياسي (تأكد منه إذا كان مختلفاً عن البورت الافتراضي)
 const host = 'voidsmpdark.play.hosting';
-const port = 48606;
+const port = 25767; 
 
 let bot = null;
 let moveInterval = null;
-let isBotActive = true; // البوت يبدأ شغال تلقائياً أول ما السيرفر يفتح
+let isBotActive = true;
 
 const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === '/api/stop') {
@@ -79,7 +80,8 @@ function wakeUpServer() {
     if (!isBotActive) return;
     console.log('جاري إرسال Ping لإيقاظ السيرفر...');
     
-    mc.ping({ host: host, port: port, version: '1.21.1' }, (err) => {
+    // إزالة تحديد الإصدار يدوياً لتجنب أخطاء البروتوكول
+    mc.ping({ host: host, port: port }, (err) => {
         if (!isBotActive) return;
         if (err) {
             setTimeout(wakeUpServer, 10000);
@@ -103,7 +105,7 @@ function startBot() {
         host: host,
         port: port,
         username: 'AFK_Bot_247',
-        version: '1.21.11',
+        // إزالة حقل الـ version لكي تتوافق المكتبة تلقائياً مع إصدار السيرفر
         hideErrors: true
     });
 
@@ -163,5 +165,4 @@ function stopBot() {
     console.log('تم إيقاف البوت تماماً.');
 }
 
-// بدء التشغيل تلقائياً عند فتح السيرفر
 wakeUpServer();
