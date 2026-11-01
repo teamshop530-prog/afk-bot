@@ -4,7 +4,7 @@ const mineflayer = require('mineflayer');
 const mc = require('minecraft-protocol');
 
 const host = 'voidsmpdark.play.hosting';
-const targetPort = 25767; // بورت الجافا القياسي للاستضافة
+const targetPort = 25859; // بورت الجافا القياسي للاستضافة
 
 let bot = null;
 let moveInterval = null;
